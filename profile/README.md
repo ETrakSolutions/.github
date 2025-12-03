@@ -27,12 +27,12 @@ pour créer des systèmes robustes, fiables et adaptés aux environnements exige
 
 ### 🔹 Contrôle & automatisation embarquée
 - Modules électroniques personnalisés  
-- Contrôleurs haute performance (MCU, ESP32, IoT industriel)  
+- Contrôleurs haute performance (MCU, IoT industriel)  
 - Acquisition de données en temps réel  
 - Télédiagnostics & télémétrie
 
 ### 🔹 Intégration logicielle
-- Applications Android (Jetpack Compose, WebView, communication série/USB)  
+- Applications HMI 
 - Serveurs embarqués (HTTP, WebSocket)  
 - Interfaces Web industrielles  
 - Systèmes de mise à jour OTA
