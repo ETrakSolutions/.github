@@ -5,7 +5,6 @@
 
 ---
 
-
 ## 🚧 À propos de nous  
 **E-Trak Solutions** développe des technologies embarquées avancées destinées à améliorer la sécurité, la productivité et la précision dans le domaine de la **machinerie lourde**.
 
