@@ -5,7 +5,7 @@
 ---
 
 <p align="center" style="margin: 40px 0;">
-  <a href="https://github.com/ton-org/portail-des-projets" target="_blank">
+  <a href="https://github.com/ETrakSolutions/PortailProjets" target="_blank">
     <strong>🔒 Accéder au Portail des Projets</strong>
   </a><br/>
   <em>Dépôt privé – index central de tous les projets</em>
