@@ -1,5 +1,5 @@
 <div align="center" style="background-color:#003A78; padding:30px; border-radius:12px; margin-bottom:35px;">
-  <img src="logo.jpg" alt="E-Trak Solutions Logo" width="200" />
+  <img src="e-trak_gryb.jpg" alt="E-Trak Solutions Logo"  />
 </div>
 
 ---
