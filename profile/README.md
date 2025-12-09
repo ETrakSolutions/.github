@@ -1,6 +1,15 @@
 <div align="center" style="background-color:#003A78; padding:30px; border-radius:12px; margin-bottom:35px;">
-  <img src="logo.jpg" alt="E-Trak Logo" >
+  <img src="logo.jpg" alt="E-Trak Solutions Logo" width="200" />
 </div>
+
+---
+
+<p align="center" style="margin: 40px 0;">
+  <a href="https://github.com/ton-org/portail-des-projets" target="_blank">
+    <strong>🔒 Accéder au Portail des Projets</strong>
+  </a><br/>
+  <em>Dépôt privé – index central de tous les projets</em>
+</p>
 
 ---
 
