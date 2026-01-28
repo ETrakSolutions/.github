@@ -2,7 +2,7 @@ name: Build Android APK (no wrapper)
 
 on:
   push:
-    branches: [ "**" ]
+    branches: [ "**" ]   # déclenche sur toutes les branches
   pull_request:
     branches: [ "main", "master" ]
   workflow_dispatch:
@@ -12,46 +12,46 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout
+      # 1️⃣ Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Java 17
+      # 2️⃣ Set up JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      # 3️⃣ Android SDK
+      # 3️⃣ Setup Android SDK
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      # 4️⃣ Accept licenses
-      - name: Accept Android licenses
+      # 4️⃣ Accept SDK licenses
+      - name: Accept SDK licenses
         run: yes | sdkmanager --licenses
 
       # 5️⃣ Install SDK components
-      - name: Install Android SDK packages
+      - name: Install SDK components
         run: |
           sdkmanager \
             "platforms;android-34" \
             "build-tools;34.0.0"
 
-      # 6️⃣ Install Gradle explicitly
+      # 6️⃣ Install Gradle 8.0
       - name: Install Gradle 8.0
         run: |
           wget -q https://services.gradle.org/distributions/gradle-8.0-bin.zip
           unzip -q gradle-8.0-bin.zip
           echo "$PWD/gradle-8.0/bin" >> $GITHUB_PATH
 
-      # 7️⃣ Verify tools
+      # 7️⃣ Verify Java & Gradle
       - name: Verify Java & Gradle
         run: |
           java -version
           gradle -version
 
-      # 8️⃣ Build APK (NO WRAPPER)
+      # 8️⃣ Build APK (no wrapper)
       - name: Build Debug APK
         working-directory: WiFiAutoConnect
         run: |
@@ -60,17 +60,17 @@ jobs:
             --stacktrace \
             --info
 
-      # 9️⃣ Locate APK
+      # 9️⃣ List APKs found
       - name: Locate APK
         run: |
           echo "Searching for APK files..."
           find . -type f -name "*.apk"
 
-      # 🔟 Upload APK
+      # 🔟 Upload APK artifact
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: WiFiAutoConnect-debug-apk
-          path: "**/*.apk"
+          path: WiFiAutoConnect/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
