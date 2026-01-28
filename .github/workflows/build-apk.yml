@@ -1,8 +1,11 @@
-name: Build APK
+
+name: Build Android APK
 
 on:
   push:
     branches: [ "**" ]
+  pull_request:
+    branches: [ "main", "master" ]
   workflow_dispatch:
 
 jobs:
@@ -10,30 +13,58 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      # 1️⃣ Checkout
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
+      # 2️⃣ Java
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
 
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
+      # 3️⃣ Android SDK
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
-    - name: Build Debug APK
-      working-directory: WiFiAutoConnect
-      run: |
-        chmod +x gradlew
-        ./gradlew :app:assembleDebug --no-daemon --stacktrace
+      # 4️⃣ Accept licenses
+      - name: Accept SDK licenses
+        run: yes | sdkmanager --licenses
 
-    - name: Find APK
-      run: find WiFiAutoConnect -name "*.apk" -type f
+      # 5️⃣ Install required SDK components
+      - name: Install SDK components
+        run: |
+          sdkmanager \
+            "platforms;android-34" \
+            "build-tools;34.0.0"
 
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: WiFiAutoConnect-debug
-        path: WiFiAutoConnect/app/build/outputs/apk/**/*.apk
-        retention-days: 30
+      # 6️⃣ Ensure gradlew is executable
+      - name: Grant execute permission for gradlew
+        working-directory: WiFiAutoConnect
+        run: chmod +x gradlew
+
+      # 7️⃣ Build APK (VERBOSE)
+      - name: Build Debug APK
+        working-directory: WiFiAutoConnect
+        run: |
+          ./gradlew :app:assembleDebug \
+            --no-daemon \
+            --stacktrace \
+            --info
+
+      # 8️⃣ List all APKs (debug)
+      - name: List generated APKs
+        run: |
+          echo "Searching for APK files..."
+          find . -type f -name "*.apk"
+
+      # 9️⃣ Upload APK artifacts
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: WiFiAutoConnect-debug-apk
+          path: |
+            **/*.apk
+          if-no-files-found: error
+          retention-days: 30
