@@ -1,5 +1,4 @@
-
-name: Build Android APK
+name: Build Android APK (no wrapper)
 
 on:
   push:
@@ -17,7 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Java
+      # 2️⃣ Java 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -29,42 +28,49 @@ jobs:
         uses: android-actions/setup-android@v3
 
       # 4️⃣ Accept licenses
-      - name: Accept SDK licenses
+      - name: Accept Android licenses
         run: yes | sdkmanager --licenses
 
-      # 5️⃣ Install required SDK components
-      - name: Install SDK components
+      # 5️⃣ Install SDK components
+      - name: Install Android SDK packages
         run: |
           sdkmanager \
             "platforms;android-34" \
             "build-tools;34.0.0"
 
-      # 6️⃣ Ensure gradlew is executable
-      - name: Grant execute permission for gradlew
-        working-directory: WiFiAutoConnect
-        run: chmod +x gradlew
+      # 6️⃣ Install Gradle explicitly
+      - name: Install Gradle 8.0
+        run: |
+          wget -q https://services.gradle.org/distributions/gradle-8.0-bin.zip
+          unzip -q gradle-8.0-bin.zip
+          echo "$PWD/gradle-8.0/bin" >> $GITHUB_PATH
 
-      # 7️⃣ Build APK (VERBOSE)
+      # 7️⃣ Verify tools
+      - name: Verify Java & Gradle
+        run: |
+          java -version
+          gradle -version
+
+      # 8️⃣ Build APK (NO WRAPPER)
       - name: Build Debug APK
         working-directory: WiFiAutoConnect
         run: |
-          ./gradlew :app:assembleDebug \
+          gradle :app:assembleDebug \
             --no-daemon \
             --stacktrace \
             --info
 
-      # 8️⃣ List all APKs (debug)
-      - name: List generated APKs
+      # 9️⃣ Locate APK
+      - name: Locate APK
         run: |
           echo "Searching for APK files..."
           find . -type f -name "*.apk"
 
-      # 9️⃣ Upload APK artifacts
+      # 🔟 Upload APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: WiFiAutoConnect-debug-apk
-          path: |
-            **/*.apk
+          path: "**/*.apk"
           if-no-files-found: error
           retention-days: 30
