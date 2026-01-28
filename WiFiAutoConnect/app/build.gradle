@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "ca.etrak.wifiautoconnect"
-        minSdk 24  // Android 7.0 (Nougat)
+        minSdk 26  // Android 7.0 (Nougat)
         targetSdk 34
         versionCode 1
         versionName "1.0.0"
