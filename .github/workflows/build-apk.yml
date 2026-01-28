@@ -24,14 +24,46 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
-      with:
-        gradle-version: '8.0'
+    - name: Create Gradle wrapper
+      working-directory: WiFiAutoConnect
+      run: |
+        mkdir -p gradle/wrapper
+        cat > gradle/wrapper/gradle-wrapper.properties << 'PROPS'
+        distributionBase=GRADLE_USER_HOME
+        distributionPath=wrapper/dists
+        distributionUrl=https\://services.gradle.org/distributions/gradle-8.0-bin.zip
+        zipStoreBase=GRADLE_USER_HOME
+        zipStorePath=wrapper/dists
+        PROPS
+
+        # Download gradle wrapper jar
+        curl -sL "https://raw.githubusercontent.com/gradle/gradle/v8.0.0/gradle/wrapper/gradle-wrapper.jar" -o gradle/wrapper/gradle-wrapper.jar || \
+        curl -sL "https://services.gradle.org/distributions/gradle-8.0-bin.zip" -o /tmp/gradle.zip && \
+        unzip -q /tmp/gradle.zip -d /tmp && \
+        cp /tmp/gradle-8.0/lib/plugins/gradle-wrapper-*.jar gradle/wrapper/gradle-wrapper.jar 2>/dev/null || \
+        (cd /tmp && wget -q https://github.com/nicoulaj/gradle-wrapper-jar/releases/download/v0.0.1/gradle-wrapper.jar && cp gradle-wrapper.jar $GITHUB_WORKSPACE/WiFiAutoConnect/gradle/wrapper/)
+
+        chmod +x gradlew
+
+    - name: Verify setup
+      working-directory: WiFiAutoConnect
+      run: |
+        echo "=== Directory structure ==="
+        ls -la
+        ls -la gradle/wrapper/
+        echo "=== Checking gradlew ==="
+        head -20 gradlew
+        echo "=== ANDROID_HOME ==="
+        echo $ANDROID_HOME
+        echo $ANDROID_SDK_ROOT
 
     - name: Build Debug APK
       working-directory: WiFiAutoConnect
-      run: gradle assembleDebug --no-daemon --stacktrace
+      run: |
+        export ANDROID_HOME="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+        ./gradlew assembleDebug --no-daemon --stacktrace --info
+      env:
+        ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
@@ -39,16 +71,3 @@ jobs:
         name: WiFiAutoConnect-debug
         path: WiFiAutoConnect/app/build/outputs/apk/debug/*.apk
         retention-days: 30
-
-    - name: Build Release APK (unsigned)
-      working-directory: WiFiAutoConnect
-      run: gradle assembleRelease --no-daemon
-      continue-on-error: true
-
-    - name: Upload Release APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: WiFiAutoConnect-release-unsigned
-        path: WiFiAutoConnect/app/build/outputs/apk/release/*.apk
-        retention-days: 30
-      if: success()
