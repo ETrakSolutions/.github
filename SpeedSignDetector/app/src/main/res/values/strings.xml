@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Speed Sign Detector</string>
+
+    <!-- Permissions -->
+    <string name="camera_permission_title">Permission caméra requise</string>
+    <string name="camera_permission_message">Cette application nécessite l\'accès à la caméra pour détecter les panneaux de vitesse en temps réel.</string>
+    <string name="camera_permission_denied">Permission caméra refusée. Veuillez l\'activer dans les paramètres.</string>
+    <string name="grant_permission">Autoriser</string>
+    <string name="open_settings">Ouvrir les paramètres</string>
+
+    <!-- Detection -->
+    <string name="speed_limit">Limite de vitesse</string>
+    <string name="km_h">km/h</string>
+    <string name="detecting">Détection en cours…</string>
+    <string name="no_sign_detected">Aucun panneau détecté</string>
+    <string name="sign_detected">Panneau détecté</string>
+
+    <!-- Settings -->
+    <string name="settings">Paramètres</string>
+    <string name="detection_sensitivity">Sensibilité de détection</string>
+    <string name="show_detection_overlay">Afficher la zone de détection</string>
+    <string name="sound_alerts">Alertes sonores</string>
+    <string name="about">À propos</string>
+
+    <!-- About -->
+    <string name="app_description">Application de détection de panneaux de vitesse du Québec utilisant la vision par ordinateur et l\'apprentissage automatique.</string>
+    <string name="version">Version %1$s</string>
+
+    <!-- Errors -->
+    <string name="camera_error">Erreur d\'initialisation de la caméra</string>
+    <string name="detection_error">Erreur lors de la détection</string>
+</resources>

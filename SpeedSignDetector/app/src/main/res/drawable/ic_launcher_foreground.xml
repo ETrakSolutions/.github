@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Background circle -->
+    <path
+        android:fillColor="#1E88E5"
+        android:pathData="M54,54m-40,0a40,40 0,1 1,80 0a40,40 0,1 1,-80 0" />
+    <!-- Speed sign outline -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M34,30h40v48h-40z"
+        android:strokeWidth="2"
+        android:strokeColor="#FFFFFF" />
+    <!-- Inner rectangle -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M38,34h32v40h-32z" />
+    <!-- Speed number background -->
+    <path
+        android:fillColor="#1E88E5"
+        android:pathData="M40,38h28v32h-28z" />
+    <!-- Number 5 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M44,42h10v4h-6v4h6v10h-10v-4h6v-2h-6z" />
+    <!-- Number 0 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M56,42h8v18h-8zM58,44v14h4v-14z" />
+</vector>
