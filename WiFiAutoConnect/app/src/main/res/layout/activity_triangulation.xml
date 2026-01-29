@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.MapActivity">
+    tools:context=".ui.TriangulationActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -26,47 +26,46 @@
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <!-- Filter chips -->
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chipGroupFilter"
+        <!-- Info banner -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="8dp"
-            android:background="@color/surface"
-            app:singleSelection="true">
+            android:layout_margin="8dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/primary_light">
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipAll"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Tous"
-                android:checked="true"
-                style="@style/Widget.Material3.Chip.Filter" />
+                android:orientation="vertical"
+                android:padding="12dp">
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipOpen"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ouverts"
-                style="@style/Widget.Material3.Chip.Filter" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Triangulation Wi-Fi"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white" />
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipSecured"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Sécurisés"
-                style="@style/Widget.Material3.Chip.Filter" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Estime la position réelle des réseaux en utilisant plusieurs lectures de signal depuis différents endroits."
+                    android:textSize="12sp"
+                    android:textColor="@android:color/white" />
 
-        </com.google.android.material.chip.ChipGroup>
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Stats bar -->
         <TextView
             android:id="@+id/textStats"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="12dp"
-            android:paddingBottom="8dp"
+            android:padding="12dp"
             android:background="@color/surface"
             android:text="Chargement..."
             android:textSize="14sp"
@@ -88,31 +87,29 @@
             android:background="@color/surface"
             android:gravity="center">
 
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/ic_marker_open"
-                tools:ignore="ContentDescription" />
+            <View
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:background="@drawable/circle_blue" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginEnd="16dp"
-                android:text="Ouvert"
+                android:text="Position estimée"
                 android:textSize="12sp" />
 
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/ic_marker_secured"
-                tools:ignore="ContentDescription" />
+            <View
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:background="@drawable/circle_gray" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:text="Sécurisé"
+                android:text="Points de lecture"
                 android:textSize="12sp" />
 
         </LinearLayout>

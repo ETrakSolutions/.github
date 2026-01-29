@@ -1,22 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#003A78</color>
-    <color name="primary_dark">#002855</color>
-    <color name="primary_light">#4A6FA5</color>
-    <color name="accent">#FFA726</color>
+    <!-- E-Trak Brand Colors -->
+    <color name="primary">#00838F</color>
+    <color name="primary_dark">#006064</color>
+    <color name="primary_light">#4DB6AC</color>
+    <color name="accent">#FF6F00</color>
+    <color name="secondary">#37474F</color>
 
     <color name="text_primary">#212121</color>
     <color name="text_secondary">#757575</color>
     <color name="text_hint">#9E9E9E</color>
+    <color name="text_on_primary">#FFFFFF</color>
 
     <color name="background">#FAFAFA</color>
     <color name="surface">#FFFFFF</color>
     <color name="divider">#E0E0E0</color>
 
     <color name="open_network">#4CAF50</color>
-    <color name="secured_network">#FF9800</color>
+    <color name="secured_network">#FF5722</color>
 
-    <color name="event_scan">#2196F3</color>
+    <color name="event_scan">#00838F</color>
     <color name="event_attempt">#FF9800</color>
     <color name="event_success">#4CAF50</color>
     <color name="event_failed">#F44336</color>
@@ -26,4 +29,10 @@
     <color name="signal_good">#8BC34A</color>
     <color name="signal_fair">#FFC107</color>
     <color name="signal_weak">#FF5722</color>
+
+    <!-- Dark mode colors -->
+    <color name="dark_background">#121212</color>
+    <color name="dark_surface">#1E1E1E</color>
+    <color name="dark_text_primary">#FFFFFF</color>
+    <color name="dark_text_secondary">#B0B0B0</color>
 </resources>

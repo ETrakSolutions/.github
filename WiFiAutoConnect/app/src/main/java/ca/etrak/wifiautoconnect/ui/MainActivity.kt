@@ -383,6 +383,18 @@ class MainActivity : AppCompatActivity() {
                 startActivity(Intent(this, LogActivity::class.java))
                 true
             }
+            R.id.action_triangulation -> {
+                startActivity(Intent(this, TriangulationActivity::class.java))
+                true
+            }
+            R.id.action_stats -> {
+                startActivity(Intent(this, StatsActivity::class.java))
+                true
+            }
+            R.id.action_export -> {
+                startActivity(Intent(this, ExportActivity::class.java))
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

@@ -81,6 +81,24 @@
             android:label="Carte Wi-Fi"
             android:theme="@style/Theme.WiFiAutoConnect" />
 
+        <activity
+            android:name=".ui.TriangulationActivity"
+            android:exported="false"
+            android:label="@string/triangulation_title"
+            android:theme="@style/Theme.WiFiAutoConnect" />
+
+        <activity
+            android:name=".ui.StatsActivity"
+            android:exported="false"
+            android:label="@string/stats_title"
+            android:theme="@style/Theme.WiFiAutoConnect" />
+
+        <activity
+            android:name=".ui.ExportActivity"
+            android:exported="false"
+            android:label="@string/export_title"
+            android:theme="@style/Theme.WiFiAutoConnect" />
+
         <service
             android:name=".service.WiFiScanService"
             android:exported="false"
@@ -103,6 +121,16 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
     </application>
 

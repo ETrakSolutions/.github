@@ -1,6 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">WiFi Auto Connect</string>
+    <string name="app_name">E-Trak WiFi Scanner</string>
+    <string name="app_subtitle">Powered by E-Trak Solutions</string>
     <string name="log_title">Historique</string>
     <string name="settings_title">Paramètres</string>
+    <string name="map_title">Carte Wi-Fi</string>
+    <string name="triangulation_title">Triangulation</string>
+    <string name="stats_title">Statistiques</string>
+    <string name="export_title">Exporter</string>
+
+    <!-- Filters -->
+    <string name="filter_all">Tous</string>
+    <string name="filter_open">Ouverts</string>
+    <string name="filter_secured">Sécurisés</string>
+
+    <!-- Actions -->
+    <string name="action_scan">Scanner</string>
+    <string name="action_export">Exporter</string>
+    <string name="action_clear">Effacer</string>
+    <string name="action_share">Partager</string>
+
+    <!-- Status -->
+    <string name="status_scanning">Scan en cours...</string>
+    <string name="status_connected">Connecté</string>
+    <string name="status_disconnected">Non connecté</string>
+
+    <!-- Map -->
+    <string name="map_legend_open">Ouvert</string>
+    <string name="map_legend_secured">Sécurisé</string>
+    <string name="map_no_data">Aucun réseau avec coordonnées GPS</string>
+
+    <!-- Export -->
+    <string name="export_csv">Exporter CSV</string>
+    <string name="export_json">Exporter JSON</string>
+    <string name="export_success">Export réussi</string>
+    <string name="export_failed">Échec de l\'export</string>
 </resources>

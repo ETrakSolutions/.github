@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [WiFiNetwork::class, ConnectionLog::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class WiFiDatabase : RoomDatabase() {

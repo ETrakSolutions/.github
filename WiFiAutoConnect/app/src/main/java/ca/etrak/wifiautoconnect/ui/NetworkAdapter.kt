@@ -34,6 +34,7 @@ class NetworkAdapter(
         private val textDetails: TextView = itemView.findViewById(R.id.textDetails)
         private val textSignal: TextView = itemView.findViewById(R.id.textSignal)
         private val textLastSeen: TextView = itemView.findViewById(R.id.textLastSeen)
+        private val textScanCount: TextView = itemView.findViewById(R.id.textScanCount)
         private val iconConnected: ImageView = itemView.findViewById(R.id.iconConnected)
 
         private val dateFormat = SimpleDateFormat("dd/MM HH:mm", Locale.getDefault())
@@ -61,6 +62,14 @@ class NetworkAdapter(
 
             // Connected icon visibility
             iconConnected.visibility = if (network.connectionSuccessful) View.VISIBLE else View.GONE
+
+            // Scan count visibility (show only if scanned more than once)
+            if (network.scanCount > 1) {
+                textScanCount.text = "x${network.scanCount} scans"
+                textScanCount.visibility = View.VISIBLE
+            } else {
+                textScanCount.visibility = View.GONE
+            }
 
             itemView.setOnClickListener { onNetworkClick(network) }
         }

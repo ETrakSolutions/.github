@@ -22,6 +22,9 @@ interface WiFiDao {
     @Query("SELECT * FROM wifi_networks WHERE latitude IS NOT NULL AND longitude IS NOT NULL")
     suspend fun getNetworksWithLocationSync(): List<WiFiNetwork>
 
+    @Query("SELECT * FROM wifi_networks ORDER BY lastSeenTimestamp DESC")
+    suspend fun getAllNetworksSync(): List<WiFiNetwork>
+
     @Query("SELECT * FROM wifi_networks WHERE bssid = :bssid LIMIT 1")
     suspend fun getNetworkByBssid(bssid: String): WiFiNetwork?
 
@@ -36,6 +39,18 @@ interface WiFiDao {
 
     @Query("UPDATE wifi_networks SET connectionAttempted = :attempted, connectionSuccessful = :successful, lastConnectionTimestamp = :timestamp, connectionCount = connectionCount + 1 WHERE bssid = :bssid")
     suspend fun updateConnectionStatus(bssid: String, attempted: Boolean, successful: Boolean, timestamp: Long)
+
+    @Query("UPDATE wifi_networks SET scanCount = scanCount + 1, lastSeenTimestamp = :timestamp, signalStrength = :signal, latitude = COALESCE(:lat, latitude), longitude = COALESCE(:lon, longitude), bestSignalStrength = CASE WHEN :signal > bestSignalStrength THEN :signal ELSE bestSignalStrength END, signalReadings = :readings WHERE bssid = :bssid")
+    suspend fun updateNetworkScan(bssid: String, timestamp: Long, signal: Int, lat: Double?, lon: Double?, readings: String?)
+
+    @Query("SELECT * FROM wifi_networks WHERE latitude IS NOT NULL AND longitude IS NOT NULL AND isOpen = 1")
+    suspend fun getOpenNetworksWithLocationSync(): List<WiFiNetwork>
+
+    @Query("SELECT * FROM wifi_networks WHERE signalReadings IS NOT NULL AND LENGTH(signalReadings) > 10")
+    suspend fun getNetworksForTriangulation(): List<WiFiNetwork>
+
+    @Query("SELECT SUM(scanCount) FROM wifi_networks")
+    suspend fun getTotalScans(): Int
 
     @Query("DELETE FROM wifi_networks")
     suspend fun deleteAllNetworks()

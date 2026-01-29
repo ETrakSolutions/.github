@@ -3,6 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_triangulation"
+        android:icon="@drawable/ic_triangulation"
+        android:title="Triangulation"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_stats"
+        android:icon="@drawable/ic_stats"
+        android:title="Statistiques"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_export"
+        android:icon="@drawable/ic_export"
+        android:title="Exporter"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_logs"
         android:icon="@drawable/ic_history"
         android:title="Historique"
