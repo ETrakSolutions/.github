@@ -30,11 +30,11 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Status Card -->
+            <!-- Status Card with GPS -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp">
 
@@ -44,22 +44,59 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="État de la connexion"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_secondary" />
+                        android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/textConnectionStatus"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Non connecté"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Connexion Wi-Fi"
+                                android:textSize="12sp"
+                                android:textColor="@color/text_secondary" />
+
+                            <TextView
+                                android:id="@+id/textConnectionStatus"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Non connecté"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/text_primary" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="end">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Position GPS"
+                                android:textSize="12sp"
+                                android:textColor="@color/text_secondary" />
+
+                            <TextView
+                                android:id="@+id/textGpsLocation"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="---, ---"
+                                android:textSize="12sp"
+                                android:textColor="@color/text_primary" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -69,7 +106,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp">
 
@@ -102,7 +139,47 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:layout_marginVertical="12dp"
+                        android:layout_marginVertical="8dp"
+                        android:background="@color/divider" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Mode Wardriving"
+                                android:textSize="16sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Scan rapide continu"
+                                android:textSize="12sp"
+                                android:textColor="@color/text_secondary" />
+
+                        </LinearLayout>
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switchWardriving"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="8dp"
                         android:background="@color/divider" />
 
                     <LinearLayout
@@ -133,31 +210,61 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
+                    android:orientation="horizontal"
                     android:padding="16dp">
 
-                    <TextView
-                        android:id="@+id/textNetworkCount"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Réseaux détectés: 0"
-                        android:textSize="14sp" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/textOpenCount"
+                        <TextView
+                            android:id="@+id/textNetworkCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Visibles: 0"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/textOpenCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Ouverts: 0"
+                            android:textSize="14sp"
+                            android:textColor="@color/open_network" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Réseaux ouverts: 0"
-                        android:textSize="14sp"
-                        android:textColor="@color/open_network" />
+                        android:orientation="vertical"
+                        android:gravity="end">
+
+                        <TextView
+                            android:id="@+id/textTotalHistory"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Total: 0"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/textWithGps"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Avec GPS: 0"
+                            android:textSize="14sp"
+                            android:textColor="@color/primary" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -168,35 +275,77 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="12dp">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonScanNow"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:text="Scanner"
+                    android:layout_marginEnd="4dp"
+                    android:text="Scan"
                     app:icon="@drawable/ic_scan" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonViewMap"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="4dp"
+                    android:text="Carte"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    app:icon="@drawable/ic_map" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonViewLogs"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="4dp"
                     android:text="Historique"
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     app:icon="@drawable/ic_history" />
 
             </LinearLayout>
 
-            <!-- Networks List -->
+            <!-- Filter Chips -->
+            <com.google.android.material.chip.ChipGroup
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tous"
+                    android:checked="true"
+                    style="@style/Widget.Material3.Chip.Filter" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipOpen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ouverts"
+                    style="@style/Widget.Material3.Chip.Filter" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipSecured"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sécurisés"
+                    style="@style/Widget.Material3.Chip.Filter" />
+
+            </com.google.android.material.chip.ChipGroup>
+
+            <!-- Networks List Title -->
             <TextView
+                android:id="@+id/textListTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Réseaux Wi-Fi"
-                android:textSize="18sp"
+                android:text="Réseaux disponibles en temps réel"
+                android:textSize="16sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp" />
 

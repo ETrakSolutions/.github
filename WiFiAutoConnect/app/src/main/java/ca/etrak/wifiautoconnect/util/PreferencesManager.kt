@@ -18,6 +18,8 @@ class PreferencesManager(context: Context) {
         private const val KEY_LOG_RETENTION_DAYS = "log_retention_days"
         private const val KEY_SERVICE_RUNNING = "service_running"
         private const val KEY_CONNECT_ONLY_WHEN_DISCONNECTED = "connect_only_when_disconnected"
+        private const val KEY_AGGRESSIVE_SCAN_MODE = "aggressive_scan_mode"
+        private const val KEY_SHOW_ONLY_OPEN = "show_only_open"
 
         const val DEFAULT_SCAN_INTERVAL = 30000L  // 30 seconds
         const val DEFAULT_MIN_SIGNAL_STRENGTH = -75  // dBm
@@ -55,4 +57,12 @@ class PreferencesManager(context: Context) {
     var connectOnlyWhenDisconnected: Boolean
         get() = prefs.getBoolean(KEY_CONNECT_ONLY_WHEN_DISCONNECTED, true)
         set(value) = prefs.edit().putBoolean(KEY_CONNECT_ONLY_WHEN_DISCONNECTED, value).apply()
+
+    var aggressiveScanMode: Boolean
+        get() = prefs.getBoolean(KEY_AGGRESSIVE_SCAN_MODE, false)
+        set(value) = prefs.edit().putBoolean(KEY_AGGRESSIVE_SCAN_MODE, value).apply()
+
+    var showOnlyOpen: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_ONLY_OPEN, false)
+        set(value) = prefs.edit().putBoolean(KEY_SHOW_ONLY_OPEN, value).apply()
 }

@@ -13,6 +13,15 @@ interface WiFiDao {
     @Query("SELECT * FROM wifi_networks WHERE isOpen = 1 ORDER BY lastSeenTimestamp DESC")
     fun getOpenNetworks(): LiveData<List<WiFiNetwork>>
 
+    @Query("SELECT * FROM wifi_networks WHERE isOpen = 0 ORDER BY lastSeenTimestamp DESC")
+    fun getSecuredNetworks(): LiveData<List<WiFiNetwork>>
+
+    @Query("SELECT * FROM wifi_networks WHERE latitude IS NOT NULL AND longitude IS NOT NULL ORDER BY lastSeenTimestamp DESC")
+    fun getNetworksWithLocation(): LiveData<List<WiFiNetwork>>
+
+    @Query("SELECT * FROM wifi_networks WHERE latitude IS NOT NULL AND longitude IS NOT NULL")
+    suspend fun getNetworksWithLocationSync(): List<WiFiNetwork>
+
     @Query("SELECT * FROM wifi_networks WHERE bssid = :bssid LIMIT 1")
     suspend fun getNetworkByBssid(bssid: String): WiFiNetwork?
 

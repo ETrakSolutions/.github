@@ -6,6 +6,8 @@ class WiFiRepository(private val wifiDao: WiFiDao) {
 
     val allNetworks: LiveData<List<WiFiNetwork>> = wifiDao.getAllNetworks()
     val openNetworks: LiveData<List<WiFiNetwork>> = wifiDao.getOpenNetworks()
+    val securedNetworks: LiveData<List<WiFiNetwork>> = wifiDao.getSecuredNetworks()
+    val networksWithLocation: LiveData<List<WiFiNetwork>> = wifiDao.getNetworksWithLocation()
     val allLogs: LiveData<List<ConnectionLog>> = wifiDao.getAllLogs()
 
     fun getRecentLogs(limit: Int): LiveData<List<ConnectionLog>> = wifiDao.getRecentLogs(limit)
