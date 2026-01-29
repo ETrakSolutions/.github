@@ -1,9 +1,9 @@
 package ca.etrak.wifiautoconnect.ui
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import ca.etrak.wifiautoconnect.R
 import ca.etrak.wifiautoconnect.WiFiAutoConnectApp
@@ -81,16 +81,16 @@ class MapActivity : AppCompatActivity() {
                         append(if (network.isOpen) "OUVERT" else network.securityType)
                         append(" | ${network.signalStrength} dBm")
                         append(" | ${network.frequencyBand}")
-                        if (network.connectionSuccessful) append(" | ✓ Connecté")
+                        if (network.connectionSuccessful) append(" | Connecté")
                     }
 
                     // Color based on open/secured
                     if (network.isOpen) {
                         openCount++
-                        icon = resources.getDrawable(R.drawable.ic_marker_open, theme)
+                        icon = ContextCompat.getDrawable(this@MapActivity, R.drawable.ic_marker_open)
                     } else {
                         securedCount++
-                        icon = resources.getDrawable(R.drawable.ic_marker_secured, theme)
+                        icon = ContextCompat.getDrawable(this@MapActivity, R.drawable.ic_marker_secured)
                     }
                 }
 
