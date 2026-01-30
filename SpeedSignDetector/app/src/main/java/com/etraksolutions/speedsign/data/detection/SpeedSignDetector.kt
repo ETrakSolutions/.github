@@ -91,13 +91,16 @@ class SpeedSignDetector @Inject constructor() {
         val regions = mutableListOf<TextRegion>()
 
         for (block in text.textBlocks) {
+            // Use block confidence for all elements within it
+            val blockConfidence = 0.8f // Default confidence since Line/Element may not have it
+
             for (line in block.lines) {
                 val boundingBox = line.boundingBox ?: continue
                 regions.add(
                     TextRegion(
                         text = line.text,
                         boundingBox = RectF(boundingBox),
-                        confidence = line.confidence ?: 0.5f
+                        confidence = blockConfidence
                     )
                 )
 
@@ -108,7 +111,7 @@ class SpeedSignDetector @Inject constructor() {
                         TextRegion(
                             text = element.text,
                             boundingBox = RectF(elementBox),
-                            confidence = element.confidence ?: 0.5f
+                            confidence = blockConfidence
                         )
                     )
                 }
