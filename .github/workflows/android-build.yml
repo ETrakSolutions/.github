@@ -51,7 +51,7 @@ jobs:
 
       - name: Build Debug APK
         working-directory: SpeedSignDetector
-        run: gradle assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log || (cat build.log && exit 1)
+        run: gradle assembleDebug --no-daemon --stacktrace --info 2>&1 | tee build.log || (cat build.log && exit 1)
 
       - name: Build Release APK
         working-directory: SpeedSignDetector
@@ -62,6 +62,16 @@ jobs:
         working-directory: SpeedSignDetector
         run: gradle test --no-daemon
         continue-on-error: true
+
+      - name: Show Kotlin compilation errors
+        if: failure()
+        working-directory: SpeedSignDetector
+        run: |
+          echo "=== Searching for Kotlin errors ==="
+          grep -r "error:" build.log || true
+          grep -r "e:" build.log || true
+          echo "=== Last 200 lines of build log ==="
+          tail -200 build.log
 
       - name: Upload build log on failure
         if: failure()
