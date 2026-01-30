@@ -57,7 +57,7 @@ class CameraManager @Inject constructor(
                 val preview = Preview.Builder()
                     .build()
                     .also {
-                        it.surfaceProvider = previewView.surfaceProvider
+                        it.setSurfaceProvider(previewView.surfaceProvider)
                     }
 
                 // Image analysis use case
