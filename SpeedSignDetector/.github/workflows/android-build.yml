@@ -51,7 +51,9 @@ jobs:
 
       - name: Build Debug APK
         working-directory: SpeedSignDetector
-        run: gradle assembleDebug --no-daemon --stacktrace --info 2>&1 | tee build.log || (cat build.log && exit 1)
+        run: |
+          set -o pipefail
+          gradle assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
 
       - name: Build Release APK
         working-directory: SpeedSignDetector
