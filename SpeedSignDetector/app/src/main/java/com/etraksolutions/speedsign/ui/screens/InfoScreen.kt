@@ -256,6 +256,7 @@ fun TechBadge(text: String) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TechCard(
     icon: ImageVector,
