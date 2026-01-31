@@ -32,7 +32,50 @@ class CameraManager @Inject constructor(
 ) {
     private var cameraProvider: ProcessCameraProvider? = null
     private var imageAnalysis: ImageAnalysis? = null
+    private var camera: androidx.camera.core.Camera? = null
     private val analysisExecutor = Executors.newSingleThreadExecutor()
+
+    /**
+     * Current zoom ratio
+     */
+    var currentZoom: Float = 1.0f
+        private set
+
+    /**
+     * Minimum zoom ratio supported by the camera
+     */
+    val minZoom: Float
+        get() = camera?.cameraInfo?.zoomState?.value?.minZoomRatio ?: 1.0f
+
+    /**
+     * Maximum zoom ratio supported by the camera
+     */
+    val maxZoom: Float
+        get() = camera?.cameraInfo?.zoomState?.value?.maxZoomRatio ?: 10.0f
+
+    /**
+     * Sets the camera zoom ratio.
+     * @param zoomRatio The desired zoom ratio (between minZoom and maxZoom)
+     */
+    fun setZoom(zoomRatio: Float) {
+        camera?.let { cam ->
+            val clampedZoom = zoomRatio.coerceIn(minZoom, maxZoom)
+            cam.cameraControl.setZoomRatio(clampedZoom)
+            currentZoom = clampedZoom
+        }
+    }
+
+    /**
+     * Sets zoom using linear zoom (0.0 to 1.0)
+     * @param linearZoom The linear zoom value between 0.0 and 1.0
+     */
+    fun setLinearZoom(linearZoom: Float) {
+        camera?.let { cam ->
+            val clampedZoom = linearZoom.coerceIn(0f, 1f)
+            cam.cameraControl.setLinearZoom(clampedZoom)
+            currentZoom = minZoom + (maxZoom - minZoom) * clampedZoom
+        }
+    }
 
     /**
      * Binds the camera preview to a PreviewView and returns a flow of frames for analysis.
@@ -85,7 +128,7 @@ class CameraManager @Inject constructor(
                 cameraProvider?.unbindAll()
 
                 // Bind use cases to camera
-                cameraProvider?.bindToLifecycle(
+                camera = cameraProvider?.bindToLifecycle(
                     lifecycleOwner,
                     cameraSelector,
                     preview,

@@ -208,10 +208,13 @@ fun DetectionScreen(
                     )
 
                     // Detection history indicator
-                    if (uiState.detectionHistory.isNotEmpty()) {
+                    val successfulDetections = uiState.detectionHistory
+                        .filterIsInstance<com.etraksolutions.speedsign.domain.model.DetectionResult.Success>()
+                        .take(5)
+                    if (successfulDetections.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "D\u00e9tections r\u00e9centes: ${uiState.detectionHistory.take(5).joinToString { "${it.speedLimit}" }} km/h",
+                            text = "D\u00e9tections r\u00e9centes: ${successfulDetections.joinToString { "${it.speedSign.speedLimit}" }} km/h",
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.White.copy(alpha = 0.6f),
                             modifier = Modifier

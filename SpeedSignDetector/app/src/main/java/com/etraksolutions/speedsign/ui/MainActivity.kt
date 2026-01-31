@@ -6,9 +6,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.etraksolutions.speedsign.data.camera.CameraManager
-import com.etraksolutions.speedsign.ui.screens.DetectionScreen
+import com.etraksolutions.speedsign.ui.navigation.AppNavigation
 import com.etraksolutions.speedsign.ui.theme.SpeedSignDetectorTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -33,13 +36,20 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
+            val viewModel: MainViewModel = hiltViewModel()
+            val settings by viewModel.settings.collectAsState()
+
             SpeedSignDetectorTheme(
                 // Use dark theme for better contrast with camera
                 darkTheme = true,
                 dynamicColor = false
             ) {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    DetectionScreen(cameraManager = cameraManager)
+                    AppNavigation(
+                        cameraManager = cameraManager,
+                        settings = settings,
+                        onUpdateSettings = { viewModel.updateSettings(it) }
+                    )
                 }
             }
         }

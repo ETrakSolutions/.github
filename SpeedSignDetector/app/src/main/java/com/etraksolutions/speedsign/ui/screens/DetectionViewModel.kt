@@ -30,7 +30,7 @@ data class DetectionUiState(
     val showOverlay: Boolean = true,
     val isProcessing: Boolean = false,
     val errorMessage: String? = null,
-    val detectionHistory: List<SpeedSign> = emptyList()
+    val detectionHistory: List<DetectionResult> = emptyList()
 )
 
 /**
@@ -108,7 +108,7 @@ class DetectionViewModel @Inject constructor(
                 val sign = result.speedSign
 
                 _uiState.update { currentState ->
-                    val newHistory = (listOf(sign) + currentState.detectionHistory).take(10)
+                    val newHistory = (listOf(result) + currentState.detectionHistory).take(10)
 
                     currentState.copy(
                         detectionState = DetectionState.Detected(sign),
@@ -195,7 +195,8 @@ class DetectionViewModel @Inject constructor(
      */
     fun getMostFrequentSpeed(): Int? {
         return _uiState.value.detectionHistory
-            .groupingBy { it.speedLimit }
+            .filterIsInstance<DetectionResult.Success>()
+            .groupingBy { it.speedSign.speedLimit }
             .eachCount()
             .maxByOrNull { it.value }
             ?.key
