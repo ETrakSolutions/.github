@@ -28,6 +28,7 @@ fun SettingsScreen(
     onUpdateDetectNumericText: (Boolean) -> Unit,
     onUpdateDetectAllSigns: (Boolean) -> Unit,
     onUpdateDetectText: (Boolean) -> Unit,
+    onUpdateDetectVehicles: (Boolean) -> Unit = {},
     onUpdateShowDetectionBoxes: (Boolean) -> Unit,
     onUpdateCameraZoom: (Float) -> Unit,
     onUpdateProcessingInterval: (Long) -> Unit,
@@ -92,6 +93,13 @@ fun SettingsScreen(
                     checked = settings.detectAllSigns,
                     onCheckedChange = onUpdateDetectAllSigns,
                     iconColor = Color(0xFFFF9800)
+                )
+                SettingsSwitch(
+                    title = "Vehicules",
+                    subtitle = "Voitures, camions, bus",
+                    checked = settings.detectVehicles,
+                    onCheckedChange = onUpdateDetectVehicles,
+                    iconColor = Color(0xFF9C27B0)
                 )
                 SettingsSwitch(
                     title = "Tout le texte",

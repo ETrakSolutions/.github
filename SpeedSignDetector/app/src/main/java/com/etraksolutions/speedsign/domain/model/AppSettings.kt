@@ -10,6 +10,7 @@ data class AppSettings(
     val detectNumericText: Boolean = true,
     val detectAllSigns: Boolean = false,
     val detectText: Boolean = false,
+    val detectVehicles: Boolean = false,
 
     // Visual settings
     val showDetectionBoxes: Boolean = true,

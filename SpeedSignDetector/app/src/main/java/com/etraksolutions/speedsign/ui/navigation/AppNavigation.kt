@@ -129,6 +129,9 @@ fun AppNavigation(
                     onUpdateDetectText = {
                         onUpdateSettings(settings.copy(detectText = it))
                     },
+                    onUpdateDetectVehicles = {
+                        onUpdateSettings(settings.copy(detectVehicles = it))
+                    },
                     onUpdateShowDetectionBoxes = {
                         onUpdateSettings(settings.copy(showDetectionBoxes = it))
                     },

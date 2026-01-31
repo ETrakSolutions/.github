@@ -6,7 +6,6 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,13 +26,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.etraksolutions.speedsign.data.camera.CameraManager
+import com.etraksolutions.speedsign.data.detection.DetectedItem
+import com.etraksolutions.speedsign.data.detection.DetectionType
+import com.etraksolutions.speedsign.data.detection.EnhancedSignDetector
 import com.etraksolutions.speedsign.domain.model.AppSettings
+import com.etraksolutions.speedsign.domain.model.DetectionConfig
 import com.etraksolutions.speedsign.domain.model.DetectionState
+import com.etraksolutions.speedsign.domain.model.SpeedSign
 import com.etraksolutions.speedsign.ui.components.CameraPreview
 import com.etraksolutions.speedsign.ui.components.PermissionRequestScreen
 import com.etraksolutions.speedsign.ui.components.SpeedDisplay
@@ -41,6 +44,8 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * Enhanced detection screen with all professional features.
@@ -56,24 +61,28 @@ fun EnhancedDetectionScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
     var previewView by remember { mutableStateOf<PreviewView?>(null) }
 
-    // Track FPS
+    // Enhanced detector
+    val enhancedDetector = remember { EnhancedSignDetector() }
+
+    // Track detected items for overlay
+    var detectedItems by remember { mutableStateOf<List<DetectedItem>>(emptyList()) }
+    var currentSpeedSign by remember { mutableStateOf<SpeedSign?>(null) }
+
+    // Track FPS and processing
     var frameCount by remember { mutableIntStateOf(0) }
     var fps by remember { mutableIntStateOf(0) }
     var lastFpsUpdate by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var processingTimeMs by remember { mutableLongStateOf(0L) }
+    var isProcessing by remember { mutableStateOf(false) }
 
-    // Update FPS counter
-    LaunchedEffect(uiState.detectionState) {
-        frameCount++
-        val now = System.currentTimeMillis()
-        if (now - lastFpsUpdate >= 1000) {
-            fps = frameCount
-            frameCount = 0
-            lastFpsUpdate = now
-        }
+    // Apply zoom when settings change
+    LaunchedEffect(settings.cameraZoom) {
+        cameraManager.setZoom(settings.cameraZoom)
     }
 
     // Handle lifecycle events
@@ -85,9 +94,7 @@ fun EnhancedDetectionScreen(
                     cameraManager.stopCamera()
                 }
                 Lifecycle.Event.ON_RESUME -> {
-                    if (cameraPermissionState.status.isGranted && previewView != null) {
-                        // Camera will restart automatically
-                    }
+                    // Camera will restart via LaunchedEffect
                 }
                 else -> {}
             }
@@ -95,18 +102,69 @@ fun EnhancedDetectionScreen(
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
+            enhancedDetector.release()
             cameraManager.release()
         }
     }
 
-    // Start camera when permission granted
+    // Start camera and detection when permission granted
     LaunchedEffect(cameraPermissionState.status.isGranted, previewView) {
         if (cameraPermissionState.status.isGranted && previewView != null) {
             val frameFlow = cameraManager.startCamera(
                 lifecycleOwner = lifecycleOwner,
                 previewView = previewView!!
             )
-            viewModel.startDetection(frameFlow)
+
+            // Apply initial zoom
+            delay(500) // Wait for camera to initialize
+            cameraManager.setZoom(settings.cameraZoom)
+
+            // Process frames with enhanced detector
+            val config = DetectionConfig(
+                minConfidence = settings.minConfidence,
+                processingInterval = settings.processingIntervalMs
+            )
+
+            var lastProcessTime = 0L
+
+            frameFlow.collect { bitmap ->
+                val currentTime = System.currentTimeMillis()
+
+                // Throttle processing based on settings
+                if (currentTime - lastProcessTime >= settings.processingIntervalMs && !isProcessing) {
+                    lastProcessTime = currentTime
+                    isProcessing = true
+
+                    scope.launch {
+                        try {
+                            val result = enhancedDetector.detect(bitmap, settings, config)
+
+                            // Update detected items for overlay
+                            detectedItems = result.items
+                            processingTimeMs = result.processingTimeMs
+
+                            // Update speed sign if detected
+                            result.primarySpeedSign?.let { sign ->
+                                currentSpeedSign = sign
+                                viewModel.processFrame(bitmap)
+                            }
+
+                            // Update FPS
+                            frameCount++
+                            val now = System.currentTimeMillis()
+                            if (now - lastFpsUpdate >= 1000) {
+                                fps = frameCount
+                                frameCount = 0
+                                lastFpsUpdate = now
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        } finally {
+                            isProcessing = false
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -127,13 +185,13 @@ fun EnhancedDetectionScreen(
                     previewView = preview
                 },
                 detectionBox = uiState.boundingBox,
-                showOverlay = uiState.showOverlay
+                showOverlay = false // We'll draw our own overlay
             )
 
-            // Detection overlay boxes
-            if (settings.showDetectionBoxes && uiState.boundingBox != null) {
-                DetectionOverlay(
-                    detectionState = uiState.detectionState,
+            // Detection overlay - draw rectangles for all detected items
+            if (settings.showDetectionBoxes && detectedItems.isNotEmpty()) {
+                MultiDetectionOverlay(
+                    items = detectedItems,
                     settings = settings
                 )
             }
@@ -157,11 +215,13 @@ fun EnhancedDetectionScreen(
             TopInfoBar(
                 settings = settings,
                 fps = fps,
+                processingTimeMs = processingTimeMs,
+                detectedCount = detectedItems.size,
                 detectionState = uiState.detectionState,
                 modifier = Modifier.align(Alignment.TopCenter)
             )
 
-            // Bottom speed display
+            // Bottom display
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -176,26 +236,29 @@ fun EnhancedDetectionScreen(
                     )
                     .padding(bottom = 16.dp)
             ) {
+                // Show detected speed
                 SpeedDisplay(
-                    detectionState = uiState.detectionState,
+                    detectionState = if (currentSpeedSign != null) {
+                        DetectionState.Detected(currentSpeedSign!!)
+                    } else {
+                        DetectionState.Scanning
+                    },
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 // Detection status chips
                 DetectionStatusChips(
                     settings = settings,
+                    detectedItems = detectedItems,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 )
 
-                // Recent detections
-                val successfulDetections = uiState.detectionHistory
-                    .filterIsInstance<com.etraksolutions.speedsign.domain.model.DetectionResult.Success>()
-                    .take(5)
-                if (successfulDetections.isNotEmpty()) {
-                    RecentDetections(
-                        history = successfulDetections,
+                // Detected items summary
+                if (detectedItems.isNotEmpty()) {
+                    DetectedItemsSummary(
+                        items = detectedItems,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -223,6 +286,8 @@ fun EnhancedDetectionScreen(
 fun TopInfoBar(
     settings: AppSettings,
     fps: Int,
+    processingTimeMs: Long,
+    detectedCount: Int,
     detectionState: DetectionState,
     modifier: Modifier = Modifier
 ) {
@@ -245,7 +310,7 @@ fun TopInfoBar(
                     color = Color.White
                 )
                 Text(
-                    "Panneaux de vitesse du Quebec",
+                    "Panneaux du Québec",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White.copy(alpha = 0.8f)
                 )
@@ -268,18 +333,26 @@ fun TopInfoBar(
 
                 if (settings.showDebugInfo) {
                     StatusChip(
-                        text = "${settings.processingIntervalMs}ms",
+                        text = "${processingTimeMs}ms",
                         color = Color(0xFF2196F3)
+                    )
+                }
+
+                if (detectedCount > 0) {
+                    StatusChip(
+                        text = "$detectedCount",
+                        color = Color(0xFF9C27B0)
                     )
                 }
             }
         }
 
-        // Processing status
-        if (settings.showDebugInfo) {
+        // Zoom indicator
+        if (settings.cameraZoom > 1.1f) {
             Spacer(modifier = Modifier.height(8.dp))
-            ProcessingIndicator(
-                isProcessing = detectionState is DetectionState.Scanning
+            StatusChip(
+                text = "Zoom: ${String.format("%.1f", settings.cameraZoom)}x",
+                color = Color(0xFFFF9800)
             )
         }
     }
@@ -316,65 +389,39 @@ fun StatusChip(
 }
 
 @Composable
-fun ProcessingIndicator(isProcessing: Boolean) {
-    val infiniteTransition = rememberInfiniteTransition(label = "processing")
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(500),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "alpha"
-    )
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .background(
-                Color.Black.copy(alpha = 0.4f),
-                RoundedCornerShape(8.dp)
-            )
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(8.dp)
-                .clip(CircleShape)
-                .background(
-                    if (isProcessing) Color(0xFF4CAF50).copy(alpha = alpha)
-                    else Color(0xFF9E9E9E)
-                )
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            if (isProcessing) "Analyse en cours..." else "En attente",
-            style = MaterialTheme.typography.labelSmall,
-            color = Color.White
-        )
-    }
-}
-
-@Composable
 fun DetectionStatusChips(
     settings: AppSettings,
+    detectedItems: List<DetectedItem>,
     modifier: Modifier = Modifier
 ) {
+    val speedCount = detectedItems.count { it.type == DetectionType.SPEED_SIGN }
+    val stopCount = detectedItems.count { it.type == DetectionType.STOP_SIGN }
+    val numericCount = detectedItems.count { it.type == DetectionType.NUMERIC_TEXT }
+    val vehicleCount = detectedItems.count { it.type == DetectionType.VEHICLE }
+    val otherCount = detectedItems.count {
+        it.type == DetectionType.ARROW_SIGN ||
+        it.type == DetectionType.WARNING_SIGN ||
+        it.type == DetectionType.OBJECT
+    }
+
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         if (settings.detectSpeedSigns) {
-            DetectionChip("Vitesse", Color(0xFF4CAF50), true)
+            DetectionChip("Vitesse", Color(0xFF4CAF50), speedCount > 0, speedCount)
         }
         if (settings.detectStopSigns) {
-            DetectionChip("STOP", Color(0xFFF44336), true)
+            DetectionChip("STOP", Color(0xFFF44336), stopCount > 0, stopCount)
         }
         if (settings.detectNumericText) {
-            DetectionChip("Nombres", Color(0xFF2196F3), true)
+            DetectionChip("Nombres", Color(0xFF2196F3), numericCount > 0, numericCount)
+        }
+        if (settings.detectVehicles) {
+            DetectionChip("Véhicules", Color(0xFF9C27B0), vehicleCount > 0, vehicleCount)
         }
         if (settings.detectAllSigns) {
-            DetectionChip("Panneaux", Color(0xFFFF9800), true)
+            DetectionChip("Panneaux", Color(0xFFFF9800), otherCount > 0, otherCount)
         }
     }
 }
@@ -383,10 +430,11 @@ fun DetectionStatusChips(
 fun DetectionChip(
     label: String,
     color: Color,
-    enabled: Boolean
+    detected: Boolean,
+    count: Int = 0
 ) {
     Surface(
-        color = if (enabled) color.copy(alpha = 0.2f) else Color.Gray.copy(alpha = 0.2f),
+        color = if (detected) color.copy(alpha = 0.3f) else Color.Gray.copy(alpha = 0.2f),
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(
@@ -397,72 +445,140 @@ fun DetectionChip(
                 modifier = Modifier
                     .size(8.dp)
                     .clip(CircleShape)
-                    .background(if (enabled) color else Color.Gray)
+                    .background(if (detected) color else Color.Gray)
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                label,
+                if (count > 0) "$label ($count)" else label,
                 style = MaterialTheme.typography.labelSmall,
-                color = Color.White.copy(alpha = if (enabled) 1f else 0.5f)
+                color = Color.White.copy(alpha = if (detected) 1f else 0.5f)
             )
         }
     }
 }
 
+/**
+ * Draws detection rectangles for all detected items.
+ */
 @Composable
-fun DetectionOverlay(
-    detectionState: DetectionState,
+fun MultiDetectionOverlay(
+    items: List<DetectedItem>,
     settings: AppSettings
 ) {
-    val detected = detectionState as? DetectionState.Detected ?: return
-
     Canvas(modifier = Modifier.fillMaxSize()) {
-        // Draw detection box
-        val boxColor = when {
-            detected.speedSign.speedLimit >= 100 -> Color(0xFFF44336)
-            detected.speedSign.speedLimit >= 70 -> Color(0xFFFF9800)
-            else -> Color(0xFF4CAF50)
-        }
+        items.forEach { item ->
+            val boxColor = when (item.type) {
+                DetectionType.SPEED_SIGN -> Color(settings.boxColorSpeed)
+                DetectionType.STOP_SIGN -> Color(settings.boxColorStop)
+                DetectionType.NUMERIC_TEXT -> Color(settings.boxColorText)
+                DetectionType.VEHICLE -> Color(0xFF9C27B0) // Purple for vehicles
+                DetectionType.ARROW_SIGN -> Color(0xFFFFEB3B) // Yellow for arrows
+                DetectionType.WARNING_SIGN -> Color(0xFFFF9800) // Orange for warnings
+                else -> Color(settings.boxColorOther)
+            }
 
-        // Animated corner effect
-        val cornerSize = 40f
-        val strokeWidth = 4f
-
-        detected.speedSign.boundingBox?.let { rect ->
-            // Scale to canvas size (assuming normalized coordinates)
-            val left = rect.left * size.width
-            val top = rect.top * size.height
-            val right = rect.right * size.width
-            val bottom = rect.bottom * size.height
+            val box = item.boundingBox
+            val left = box.left * size.width
+            val top = box.top * size.height
+            val right = box.right * size.width
+            val bottom = box.bottom * size.height
+            val width = right - left
+            val height = bottom - top
 
             // Draw corner brackets
-            // Top-left
+            val cornerSize = minOf(40f, width * 0.3f, height * 0.3f)
+            val strokeWidth = 4f
+
+            // Top-left corner
             drawLine(boxColor, Offset(left, top + cornerSize), Offset(left, top), strokeWidth)
             drawLine(boxColor, Offset(left, top), Offset(left + cornerSize, top), strokeWidth)
 
-            // Top-right
+            // Top-right corner
             drawLine(boxColor, Offset(right - cornerSize, top), Offset(right, top), strokeWidth)
             drawLine(boxColor, Offset(right, top), Offset(right, top + cornerSize), strokeWidth)
 
-            // Bottom-left
+            // Bottom-left corner
             drawLine(boxColor, Offset(left, bottom - cornerSize), Offset(left, bottom), strokeWidth)
             drawLine(boxColor, Offset(left, bottom), Offset(left + cornerSize, bottom), strokeWidth)
 
-            // Bottom-right
+            // Bottom-right corner
             drawLine(boxColor, Offset(right - cornerSize, bottom), Offset(right, bottom), strokeWidth)
             drawLine(boxColor, Offset(right, bottom), Offset(right, bottom - cornerSize), strokeWidth)
 
             // Semi-transparent fill
             drawRoundRect(
-                color = boxColor.copy(alpha = 0.1f),
+                color = boxColor.copy(alpha = 0.15f),
                 topLeft = Offset(left, top),
-                size = Size(right - left, bottom - top),
+                size = Size(width, height),
                 cornerRadius = CornerRadius(8f, 8f)
             )
         }
     }
 }
 
+@Composable
+fun DetectedItemsSummary(
+    items: List<DetectedItem>,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .background(
+                Color.Black.copy(alpha = 0.4f),
+                RoundedCornerShape(12.dp)
+            )
+            .padding(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            Icons.Default.Visibility,
+            contentDescription = null,
+            tint = Color.White.copy(alpha = 0.7f),
+            modifier = Modifier.size(16.dp)
+        )
+        Text(
+            "Détecté:",
+            style = MaterialTheme.typography.labelSmall,
+            color = Color.White.copy(alpha = 0.7f)
+        )
+
+        // Show unique labels
+        items
+            .distinctBy { it.label }
+            .take(5)
+            .forEach { item ->
+                ItemBubble(item = item)
+            }
+    }
+}
+
+@Composable
+fun ItemBubble(item: DetectedItem) {
+    val color = when (item.type) {
+        DetectionType.SPEED_SIGN -> Color(0xFF4CAF50)
+        DetectionType.STOP_SIGN -> Color(0xFFF44336)
+        DetectionType.VEHICLE -> Color(0xFF9C27B0)
+        DetectionType.NUMERIC_TEXT -> Color(0xFF2196F3)
+        else -> Color(0xFFFF9800)
+    }
+
+    Surface(
+        color = color.copy(alpha = 0.3f),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Text(
+            item.label,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            color = Color.White,
+            maxLines = 1
+        )
+    }
+}
+
+// Keep old functions for compatibility
 @Composable
 fun RecentDetections(
     history: List<com.etraksolutions.speedsign.domain.model.DetectionResult.Success>,
