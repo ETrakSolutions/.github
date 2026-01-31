@@ -23,6 +23,7 @@ class SettingsRepository @Inject constructor(
         val DETECT_NUMERIC_TEXT = booleanPreferencesKey("detect_numeric_text")
         val DETECT_ALL_SIGNS = booleanPreferencesKey("detect_all_signs")
         val DETECT_TEXT = booleanPreferencesKey("detect_text")
+        val DETECT_VEHICLES = booleanPreferencesKey("detect_vehicles")
         val SHOW_DETECTION_BOXES = booleanPreferencesKey("show_detection_boxes")
         val BOX_COLOR_SPEED = longPreferencesKey("box_color_speed")
         val BOX_COLOR_STOP = longPreferencesKey("box_color_stop")
@@ -44,6 +45,7 @@ class SettingsRepository @Inject constructor(
             detectNumericText = prefs[Keys.DETECT_NUMERIC_TEXT] ?: true,
             detectAllSigns = prefs[Keys.DETECT_ALL_SIGNS] ?: false,
             detectText = prefs[Keys.DETECT_TEXT] ?: false,
+            detectVehicles = prefs[Keys.DETECT_VEHICLES] ?: false,
             showDetectionBoxes = prefs[Keys.SHOW_DETECTION_BOXES] ?: true,
             boxColorSpeed = prefs[Keys.BOX_COLOR_SPEED] ?: 0xFF4CAF50,
             boxColorStop = prefs[Keys.BOX_COLOR_STOP] ?: 0xFFF44336,
@@ -51,64 +53,12 @@ class SettingsRepository @Inject constructor(
             boxColorOther = prefs[Keys.BOX_COLOR_OTHER] ?: 0xFFFF9800,
             cameraZoom = prefs[Keys.CAMERA_ZOOM] ?: 1f,
             processingIntervalMs = prefs[Keys.PROCESSING_INTERVAL] ?: 100L,
-            minConfidence = prefs[Keys.MIN_CONFIDENCE] ?: 0.6f,
-            showFps = prefs[Keys.SHOW_FPS] ?: false,
-            showDebugInfo = prefs[Keys.SHOW_DEBUG_INFO] ?: false,
+            minConfidence = prefs[Keys.MIN_CONFIDENCE] ?: 0.5f,
+            showFps = prefs[Keys.SHOW_FPS] ?: true,
+            showDebugInfo = prefs[Keys.SHOW_DEBUG_INFO] ?: true,
             hapticFeedback = prefs[Keys.HAPTIC_FEEDBACK] ?: true,
             soundAlerts = prefs[Keys.SOUND_ALERTS] ?: false
         )
-    }
-
-    suspend fun updateDetectSpeedSigns(enabled: Boolean) {
-        context.dataStore.edit { it[Keys.DETECT_SPEED_SIGNS] = enabled }
-    }
-
-    suspend fun updateDetectStopSigns(enabled: Boolean) {
-        context.dataStore.edit { it[Keys.DETECT_STOP_SIGNS] = enabled }
-    }
-
-    suspend fun updateDetectNumericText(enabled: Boolean) {
-        context.dataStore.edit { it[Keys.DETECT_NUMERIC_TEXT] = enabled }
-    }
-
-    suspend fun updateDetectAllSigns(enabled: Boolean) {
-        context.dataStore.edit { it[Keys.DETECT_ALL_SIGNS] = enabled }
-    }
-
-    suspend fun updateDetectText(enabled: Boolean) {
-        context.dataStore.edit { it[Keys.DETECT_TEXT] = enabled }
-    }
-
-    suspend fun updateShowDetectionBoxes(enabled: Boolean) {
-        context.dataStore.edit { it[Keys.SHOW_DETECTION_BOXES] = enabled }
-    }
-
-    suspend fun updateCameraZoom(zoom: Float) {
-        context.dataStore.edit { it[Keys.CAMERA_ZOOM] = zoom }
-    }
-
-    suspend fun updateProcessingInterval(intervalMs: Long) {
-        context.dataStore.edit { it[Keys.PROCESSING_INTERVAL] = intervalMs }
-    }
-
-    suspend fun updateMinConfidence(confidence: Float) {
-        context.dataStore.edit { it[Keys.MIN_CONFIDENCE] = confidence }
-    }
-
-    suspend fun updateShowFps(enabled: Boolean) {
-        context.dataStore.edit { it[Keys.SHOW_FPS] = enabled }
-    }
-
-    suspend fun updateShowDebugInfo(enabled: Boolean) {
-        context.dataStore.edit { it[Keys.SHOW_DEBUG_INFO] = enabled }
-    }
-
-    suspend fun updateHapticFeedback(enabled: Boolean) {
-        context.dataStore.edit { it[Keys.HAPTIC_FEEDBACK] = enabled }
-    }
-
-    suspend fun updateSoundAlerts(enabled: Boolean) {
-        context.dataStore.edit { it[Keys.SOUND_ALERTS] = enabled }
     }
 
     suspend fun updateSettings(settings: AppSettings) {
@@ -118,6 +68,7 @@ class SettingsRepository @Inject constructor(
             prefs[Keys.DETECT_NUMERIC_TEXT] = settings.detectNumericText
             prefs[Keys.DETECT_ALL_SIGNS] = settings.detectAllSigns
             prefs[Keys.DETECT_TEXT] = settings.detectText
+            prefs[Keys.DETECT_VEHICLES] = settings.detectVehicles
             prefs[Keys.SHOW_DETECTION_BOXES] = settings.showDetectionBoxes
             prefs[Keys.BOX_COLOR_SPEED] = settings.boxColorSpeed
             prefs[Keys.BOX_COLOR_STOP] = settings.boxColorStop
