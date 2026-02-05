@@ -32,9 +32,10 @@ import kotlin.coroutines.resumeWithException
 @Singleton
 class SpeedSignDetector @Inject constructor() {
 
-    private val textRecognizer: TextRecognizer = TextRecognition.getClient(
-        TextRecognizerOptions.Builder().build()
-    )
+    // Lazy initialization to prevent crashes at startup
+    private val textRecognizer: TextRecognizer by lazy {
+        TextRecognition.getClient(TextRecognizerOptions.Builder().build())
+    }
 
     // Regex pattern to match speed limit numbers
     private val speedNumberPattern = Regex("""\b(30|40|50|60|70|80|90|100|110)\b""")

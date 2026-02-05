@@ -67,7 +67,15 @@ fun EnhancedDetectionScreen(
     var isCameraReady by remember { mutableStateOf(false) }
 
     // Use remember with keys to recreate detector when needed
-    val detector = remember { EnhancedSignDetector() }
+    // Lazy creation to avoid crash on init
+    val detector = remember {
+        try {
+            EnhancedSignDetector()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to create detector", e)
+            EnhancedSignDetector() // Retry
+        }
+    }
 
     // Detection state
     var detectedItems by remember { mutableStateOf<List<DetectedItem>>(emptyList()) }

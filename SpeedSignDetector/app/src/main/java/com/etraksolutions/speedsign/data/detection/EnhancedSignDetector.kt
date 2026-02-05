@@ -69,17 +69,30 @@ data class EnhancedDetectionResult(
 @Singleton
 class EnhancedSignDetector @Inject constructor() {
 
-    private val textRecognizer: TextRecognizer = TextRecognition.getClient(
-        TextRecognizerOptions.Builder().build()
-    )
+    // Lazy initialization to prevent crashes at startup
+    private val textRecognizer: TextRecognizer by lazy {
+        try {
+            TextRecognition.getClient(TextRecognizerOptions.Builder().build())
+        } catch (e: Exception) {
+            android.util.Log.e("EnhancedSignDetector", "Failed to init text recognizer", e)
+            TextRecognition.getClient(TextRecognizerOptions.Builder().build())
+        }
+    }
 
-    private val objectDetector: ObjectDetector = ObjectDetection.getClient(
-        ObjectDetectorOptions.Builder()
-            .setDetectorMode(ObjectDetectorOptions.STREAM_MODE)
-            .enableMultipleObjects()
-            .enableClassification()
-            .build()
-    )
+    // Object detector without classification (more reliable)
+    private val objectDetector: ObjectDetector? by lazy {
+        try {
+            ObjectDetection.getClient(
+                ObjectDetectorOptions.Builder()
+                    .setDetectorMode(ObjectDetectorOptions.STREAM_MODE)
+                    .enableMultipleObjects()
+                    .build()
+            )
+        } catch (e: Exception) {
+            android.util.Log.e("EnhancedSignDetector", "Failed to init object detector", e)
+            null
+        }
+    }
 
     // Quebec speed limit values
     private val speedNumberPattern = Regex("""\b(30|40|50|60|70|80|90|100|110)\b""")
@@ -207,8 +220,9 @@ class EnhancedSignDetector @Inject constructor() {
      * Runs ML Kit Object Detection.
      */
     private suspend fun detectObjects(inputImage: InputImage): List<DetectedObject> {
+        val detector = objectDetector ?: return emptyList()
         return suspendCancellableCoroutine { continuation ->
-            objectDetector.process(inputImage)
+            detector.process(inputImage)
                 .addOnSuccessListener { objects ->
                     continuation.resume(objects)
                 }
@@ -466,7 +480,15 @@ class EnhancedSignDetector @Inject constructor() {
      * Releases resources.
      */
     fun release() {
-        textRecognizer.close()
-        objectDetector.close()
+        try {
+            textRecognizer.close()
+        } catch (e: Exception) {
+            android.util.Log.e("EnhancedSignDetector", "Error closing text recognizer", e)
+        }
+        try {
+            objectDetector?.close()
+        } catch (e: Exception) {
+            android.util.Log.e("EnhancedSignDetector", "Error closing object detector", e)
+        }
     }
 }

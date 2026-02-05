@@ -5,6 +5,8 @@
 # Keep ML Kit classes
 -keep class com.google.mlkit.** { *; }
 -keep class com.google.android.gms.internal.mlkit_vision_text.** { *; }
+-keep class com.google.android.gms.internal.mlkit_vision_object.** { *; }
+-keep class com.google.android.gms.internal.mlkit_vision_common.** { *; }
 
 # Keep CameraX classes
 -keep class androidx.camera.** { *; }
