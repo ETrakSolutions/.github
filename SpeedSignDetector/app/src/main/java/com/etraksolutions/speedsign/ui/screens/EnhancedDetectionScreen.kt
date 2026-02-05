@@ -132,9 +132,13 @@ fun EnhancedDetectionScreen(
             var lastFpsTime = System.currentTimeMillis()
 
             try {
+                // Small delay to ensure UI is ready
+                delay(100)
+
+                val currentPreviewView = previewView ?: return@LaunchedEffect
                 val frameFlow = cameraManager.startCamera(
                     lifecycleOwner = lifecycleOwner,
-                    previewView = previewView!!
+                    previewView = currentPreviewView
                 )
 
                 // Wait for camera initialization

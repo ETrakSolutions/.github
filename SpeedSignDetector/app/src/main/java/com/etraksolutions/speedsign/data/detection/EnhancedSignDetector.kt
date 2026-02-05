@@ -135,7 +135,11 @@ class EnhancedSignDetector @Inject constructor() {
                 settings.detectNumericText || settings.detectText || settings.detectAllSigns) {
 
                 val textResult = recognizeText(inputImage)
-                val textRegions = extractTextRegions(textResult, bitmap.width, bitmap.height)
+                val textRegions = if (textResult != null) {
+                    extractTextRegions(textResult, bitmap.width, bitmap.height)
+                } else {
+                    emptyList()
+                }
 
                 // Detect speed signs
                 if (settings.detectSpeedSigns) {
@@ -204,15 +208,21 @@ class EnhancedSignDetector @Inject constructor() {
     /**
      * Performs OCR on the input image.
      */
-    private suspend fun recognizeText(inputImage: InputImage): com.google.mlkit.vision.text.Text {
-        return suspendCancellableCoroutine { continuation ->
-            textRecognizer.process(inputImage)
-                .addOnSuccessListener { text ->
-                    continuation.resume(text)
-                }
-                .addOnFailureListener { e ->
-                    continuation.resumeWithException(e)
-                }
+    private suspend fun recognizeText(inputImage: InputImage): com.google.mlkit.vision.text.Text? {
+        return try {
+            suspendCancellableCoroutine { continuation ->
+                textRecognizer.process(inputImage)
+                    .addOnSuccessListener { text ->
+                        continuation.resume(text)
+                    }
+                    .addOnFailureListener { e ->
+                        android.util.Log.e("EnhancedSignDetector", "Text recognition failed", e)
+                        continuation.resume(null)
+                    }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("EnhancedSignDetector", "Text recognition exception", e)
+            null
         }
     }
 
@@ -221,14 +231,20 @@ class EnhancedSignDetector @Inject constructor() {
      */
     private suspend fun detectObjects(inputImage: InputImage): List<DetectedObject> {
         val detector = objectDetector ?: return emptyList()
-        return suspendCancellableCoroutine { continuation ->
-            detector.process(inputImage)
-                .addOnSuccessListener { objects ->
-                    continuation.resume(objects)
-                }
-                .addOnFailureListener { e ->
-                    continuation.resumeWithException(e)
-                }
+        return try {
+            suspendCancellableCoroutine { continuation ->
+                detector.process(inputImage)
+                    .addOnSuccessListener { objects ->
+                        continuation.resume(objects)
+                    }
+                    .addOnFailureListener { e ->
+                        android.util.Log.e("EnhancedSignDetector", "Object detection failed", e)
+                        continuation.resume(emptyList())
+                    }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("EnhancedSignDetector", "Object detection exception", e)
+            emptyList()
         }
     }
 

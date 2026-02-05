@@ -148,26 +148,33 @@ class CameraManager @Inject constructor(
      * Converts an ImageProxy to a Bitmap for processing.
      */
     private fun imageProxyToBitmap(imageProxy: ImageProxy): Bitmap? {
-        val buffer = imageProxy.planes[0].buffer
-        val bytes = ByteArray(buffer.remaining())
-        buffer.get(bytes)
+        return try {
+            if (imageProxy.planes.isEmpty()) {
+                return null
+            }
 
-        val bitmap = Bitmap.createBitmap(
-            imageProxy.width,
-            imageProxy.height,
-            Bitmap.Config.ARGB_8888
-        )
+            val buffer = imageProxy.planes[0].buffer
 
-        // Copy pixel data
-        buffer.rewind()
-        bitmap.copyPixelsFromBuffer(buffer)
+            val bitmap = Bitmap.createBitmap(
+                imageProxy.width,
+                imageProxy.height,
+                Bitmap.Config.ARGB_8888
+            )
 
-        // Rotate bitmap if necessary based on rotation degrees
-        val rotationDegrees = imageProxy.imageInfo.rotationDegrees
-        return if (rotationDegrees != 0) {
-            rotateBitmap(bitmap, rotationDegrees)
-        } else {
-            bitmap
+            // Copy pixel data
+            buffer.rewind()
+            bitmap.copyPixelsFromBuffer(buffer)
+
+            // Rotate bitmap if necessary based on rotation degrees
+            val rotationDegrees = imageProxy.imageInfo.rotationDegrees
+            if (rotationDegrees != 0) {
+                rotateBitmap(bitmap, rotationDegrees)
+            } else {
+                bitmap
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("CameraManager", "Error converting ImageProxy to Bitmap", e)
+            null
         }
     }
 

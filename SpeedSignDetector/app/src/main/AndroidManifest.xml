@@ -39,10 +39,10 @@
             </intent-filter>
         </activity>
 
-        <!-- ML Kit Text Recognition metadata -->
+        <!-- ML Kit dependencies metadata -->
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
-            android:value="ocr" />
+            android:value="ocr,ica" />
 
     </application>
 
