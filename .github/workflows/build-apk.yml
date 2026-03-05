@@ -2,7 +2,10 @@ name: Build PS3 Gamepad APK
 
 on:
   push:
-    branches: [ps3-gamepad-android]
+    branches: [main, ps3-gamepad-android]
+    paths:
+      - 'ps3-gamepad-test/**'
+      - '.github/workflows/build-apk.yml'
   workflow_dispatch:
 
 jobs:
