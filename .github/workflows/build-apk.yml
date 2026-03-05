@@ -3,12 +3,6 @@ name: Build PS3 Gamepad APK
 on:
   push:
     branches: [ps3-gamepad-android]
-    paths:
-      - 'ps3-gamepad-test/**'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'ps3-gamepad-test/**'
   workflow_dispatch:
 
 jobs:
