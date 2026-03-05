@@ -1,0 +1,2 @@
+rootProject.name = 'PS3GamepadTest'
+include ':app'
